@@ -2,20 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
+use App\Post;
 use Illuminate\Http\Request;
+use Intervention\Image\Facades\Image;
 
-class ProfilesController extends Controller
+class PostsController extends Controller
 {
+    public function __construct()    
+    {
+        $this->middleware('auth');
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(User $user)
+    public function index()
     {
-        return view('pages.profile.index', compact('user'));
+        //
     }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -23,7 +29,7 @@ class ProfilesController extends Controller
      */
     public function create()
     {
-        //
+        return view('pages.post.create');
     }
 
     /**
@@ -34,7 +40,21 @@ class ProfilesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $post = request()->validate([
+            'caption' => 'required',
+            'image' => ['required', 'image'],
+        ]);
+        
+        $imgPath = (request('image')->store('uploads/post', 'public'));
+
+        $image = Image::make(public_path("storage/{$imgPath}"))->fit(1200,1200);
+        $image->save();
+
+        auth()->user()->posts()->create([
+            'caption' => $post['caption'],
+            'image' => $imgPath,
+        ]);
+        return redirect('/profile/'. auth()->user()->id);
     }
 
     /**
@@ -43,9 +63,10 @@ class ProfilesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Post $post)
     {
-        //
+        // dd($post);
+        return view('pages.post.show', \compact('post'));
     }
 
     /**
@@ -54,10 +75,9 @@ class ProfilesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(User $user)
+    public function edit($id)
     {
-        $this->authorize('update',$user->profile);
-        return view('pages.profile.edit', compact('user'));
+        //
     }
 
     /**
@@ -67,20 +87,9 @@ class ProfilesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(User $user)
+    public function update(Request $request, $id)
     {
-        $this->authorize('update',$user->profile);
-        
-        $data = request()->validate([
-            'title' => 'required',
-            'description' => 'required',
-            'url' => 'url',
-            'image' => '',
-        ]);
-
-        auth()->$user->profile->update($data);
-       
-        return redirect("/profile/{$user->id}");
+        //
     }
 
     /**
