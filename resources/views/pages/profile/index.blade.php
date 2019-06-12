@@ -3,10 +3,13 @@
 <div class="container">
     <div class="row">
         <div class="col-3 p-5">
-            <img src="https://instagram.flos9-1.fna.fbcdn.net/vp/3fa9ff9804250ee73c14eee32c2d1510/5D873735/t51.2885-19/s150x150/44380660_1907195609589123_1796428255473958912_n.jpg?_nc_ht=instagram.flos9-1.fna.fbcdn.net" class="rounded-circle" alt="">
+            <img src="{{$user->profile->profileImage()}}" class="w-100 rounded-circle" alt="{{$user->profile->title}}">
         </div>
         <div class="col-9 pt-5">
-            <div><h1>{{$user->username}}</h1></div>
+            <div class="d-flex align-items-center pb-3">
+                <div class="h4">{{$user->username}}</div>
+                <button class="btn btn-primary btn-sm ml-4 mb-2" style="border-radius: 0px;" >Follow</button>
+            </div>
             <div class="d-flex">
                 <div class="pr-5"><strong>{{$user->posts->count()}}</strong> Posts</div>
                 <div class="pr-5"><strong>400</strong> Followers</div>
@@ -19,7 +22,7 @@
             @endcan
             </div>
             @can('update',$user->profile)
-                <a href="{{route('profile.edit',$user->id)}}" class="badge badge-primary p2" style="border-radius: 0px; padding: 0.27em 0.5em">Edit Profile</a>
+                <a href="{{route('profile.edit',$user->id)}}" class="badge btn badge-primary p-1" style="border-radius: 0px;">Edit Profile</a>
             @endcan
             <div>{{$user->profile->description}}</div>
             <div><a href="#">{{$user->profile->url}}</a></div>

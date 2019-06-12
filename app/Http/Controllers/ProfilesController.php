@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Intervention\Image\Facades\Image;
 
 class ProfilesController extends Controller
 {
@@ -70,16 +71,28 @@ class ProfilesController extends Controller
     public function update(User $user)
     {
         $this->authorize('update',$user->profile);
-        
+
         $data = request()->validate([
             'title' => 'required',
             'description' => 'required',
             'url' => 'url',
             'image' => '',
         ]);
-
-        auth()->$user->profile->update($data);
        
+        if(request('image')){
+            $imgPath = (request('image')->store('uploads/profile', 'public'));
+
+            $image = Image::make(public_path("storage/{$imgPath}"))->fit(1000,1000);
+            $image->save();
+
+            //this will set default image if user did not choose an image uppon profile update
+            $imgArray = ['image' => $imgPath];
+        }
+      
+        auth()->user()->profile->update(array_merge(
+            $data, $imgArray ?? [], // if user did select an image set imgArray to empty Array
+        ));
+
         return redirect("/profile/{$user->id}");
     }
 
